@@ -47,7 +47,7 @@ pipeline {
                         git config user.name "${env.GITHUB_USERNAME}"
 
                         # update the deployment file: replace image tag
-                        sed -i "s|${DOCKER_USER}/streamlit-app:.*|${DOCKER_USER}/streamlit-app:${env.IMAGE_TAG}|g" Deployment-Manifest/deployment.yml
+                        sed -i "s|${DOCKER_USER}/streamlit_application:.*|${DOCKER_USER}/streamlit_application:${env.IMAGE_TAG}|g" Deployment-Manifest/deployment.yml
                         
                         git add Deployment-Manifest/deployment.yml
                         git commit -m "Updated deployment image to version ${env.IMAGE_TAG}"
