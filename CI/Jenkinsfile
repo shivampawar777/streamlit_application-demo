@@ -22,7 +22,7 @@ pipeline {
                     passwordVariable: "DOCKER_PASS"
                     )]) {
                     sh """
-                        cd Python-app
+                        cd CI/Python-app/
                         docker build -t ${DOCKER_USER}/streamlit_application:${env.IMAGE_TAG} .
                         docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
                         docker push ${DOCKER_USER}/streamlit_application:${env.IMAGE_TAG}
@@ -31,28 +31,27 @@ pipeline {
             }
         }
         stage('Update deployment manifest') {
-            environment {
-                GITHUB_EMAIL = "pawarshivam826@gmail.com"
-                GITHUB_USERNAME = "shivampawar777"
-                GITHUB_REPO = "streamlit_application-demo"
-            }
             steps {
-                withCredentials([string(credentialsId: "gitHub", variable: "GITHUB_TOKEN"),
-                usernamePassword(credentialsId: "dockerhub",
-                usernameVariable: "DOCKER_USER",
-                passwordVariable: "DOCKER_PASS"
-                )]) {
-		            sh """
-                        git config user.email "${env.GITHUB_EMAIL}"
-                        git config user.name "${env.GITHUB_USERNAME}"
-
-                        # update the deployment file: replace image tag
-                        sed -i "s|${DOCKER_USER}/streamlit_application:.*|${DOCKER_USER}/streamlit_application:${env.IMAGE_TAG}|g" Deployment-Manifest/deployment.yml
-                        
-                        git add Deployment-Manifest/deployment.yml
-                        git commit -m "Updated deployment image to version ${env.IMAGE_TAG}"
-                        git push https://${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${GITHUB_REPO} HEAD:master
-                    """        
+                withCredentials([
+                    string(credentialsId: "gitHubEmail", variable: "GITHUB_EMAIL"),
+                    string(credentialsId: "gitHubUsername", variable: "GITHUB_USER"),
+                    string(credentialsId: "gitHubRepo", variable: "GITHUB_REPO"),
+                    string(credentialsId: "gitHub", variable: "GITHUB_TOKEN"),
+                    usernamePassword(credentialsId: "dockerhub",
+                                    usernameVariable: "DOCKER_USER",
+                                    passwordVariable: "DOCKER_PASS")]) {
+                                        sh """
+                                            git config user.email "${GITHUB_EMAIL}"
+                                            git config user.name "${GITHUB_USER}"
+                                            
+                                            # update the deployment file: replace image tag
+                                            sed -i "s|${DOCKER_USER}/streamlit_application:.*|${DOCKER_USER}/streamlit_application:${env.IMAGE_TAG}|g" \
+                                                CD/Deployment-Manifest/deployment.yml
+                                            
+                                            git add Deployment-Manifest/deployment.yml
+                                            git commit -m "Updated deployment image to version ${env.IMAGE_TAG}"
+                                            git push https://${GITHUB_TOKEN}@github.com/${GITHUB_USER}/${GITHUB_REPO} HEAD:master
+                                        """
                 }
             }
         }
