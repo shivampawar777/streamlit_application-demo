@@ -48,7 +48,7 @@ pipeline {
                                             sed -i "s|${DOCKER_USER}/streamlit_application:.*|${DOCKER_USER}/streamlit_application:${env.IMAGE_TAG}|g" \
                                                 CD/Deployment-Manifest/deployment.yml
                                             
-                                            git add Deployment-Manifest/deployment.yml
+                                            git add CD/Deployment-Manifest/deployment.yml
                                             git commit -m "Updated deployment image to version ${env.IMAGE_TAG}"
                                             git push https://${GITHUB_TOKEN}@github.com/${GITHUB_USER}/${GITHUB_REPO} HEAD:master
                                         """
